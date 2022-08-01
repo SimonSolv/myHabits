@@ -18,15 +18,6 @@ class HabitsViewController: UIViewController {
     }()
     
     override func viewWillAppear(_ animated: Bool) {
-//        NotificationCenter.default.addObserver(self,
-//                                               selector: #selector(self.correctNotification(notification:)),
-//                                               name: Notification.Name("Correct"),
-//                                               object: nil)
-//        NotificationCenter.default.addObserver(self,
-//                                               selector: #selector(self.incorrectNotification(notification:)),
-//                                               name: Notification.Name("Incorrect"),
-//                                               object: nil)
-        
         navigationController?.navigationBar.prefersLargeTitles = true
     }
     override func viewDidLoad() {

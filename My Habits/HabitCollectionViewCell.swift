@@ -9,11 +9,9 @@ class HabitCollectionViewCell: UICollectionViewCell {
     var rootVC: HabitsViewController? {
         didSet {
             self.store = rootVC?.store
-
-
         }
     }
-    
+
     var source: Habit? {
         didSet {
             currentHabit = source
@@ -68,7 +66,6 @@ class HabitCollectionViewCell: UICollectionViewCell {
         checkButton.layer.borderWidth = 0
         checkButton.layer.backgroundColor = UIColor.green.cgColor
         habitCounter.text = "Счетчик: \(counterNum+1)"
-        print(store?.todayProgress)
     }
     
     private func setupConstraints() {

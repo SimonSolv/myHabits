@@ -140,11 +140,19 @@ class AddHabitViewController: UIViewController {
     }
     
     @objc private func save() {
+        if self.nameTextField.text == "" {
+            let alert = UIAlertController(title: "Ошибка!", message: "Введите название привычки", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Ок", style: .cancel, handler: { _ in
+            }))
+            present(alert, animated: true)
+        }
+        else{
         newHabit = Habit(name: habitName, date: habitDate, color: habitColor)
         rootVC?.store.habits.append(newHabit!)
         rootVC?.store.save()
         rootVC?.reloadCollectionView()
         rootVC?.cancel()
+        }
     }
     
     private func setupViews() {
@@ -167,7 +175,6 @@ class AddHabitViewController: UIViewController {
             nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 80),
             nameLabel.heightAnchor.constraint(equalToConstant: 18),
             nameLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-         //   nameLabel.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             nameTextField.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             nameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor ,constant: -16),
             nameTextField.topAnchor.constraint(equalTo: nameLabel.bottomAnchor,constant: 10),
@@ -179,7 +186,6 @@ class AddHabitViewController: UIViewController {
             colorLabel.heightAnchor.constraint(equalToConstant: 30),
             
             colorPicker.leadingAnchor.constraint(equalTo: colorLabel.leadingAnchor),
-        //    colorPicker.trailingAnchor.constraint(equalTo: view.trailingAnchor ,constant: -16),
             colorPicker.topAnchor.constraint(equalTo: colorLabel.bottomAnchor,constant: 10),
             colorPicker.heightAnchor.constraint(equalToConstant: 30),
             colorPicker.widthAnchor.constraint(equalToConstant: 30),
