@@ -16,11 +16,14 @@
 		CE524DB027077B20009C182B /* LaunchScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE524DAF27077B20009C182B /* LaunchScreenView.swift */; };
 		CE524DB3270789BC009C182B /* HabitsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE524DB2270789BC009C182B /* HabitsViewController.swift */; };
 		CE524DB6270789C8009C182B /* InfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE524DB5270789C8009C182B /* InfoViewController.swift */; };
+		CE6EE696289AF3C900E04475 /* EditHabitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6EE695289AF3C900E04475 /* EditHabitViewController.swift */; };
+		CE6EE698289C488400E04475 /* MainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6EE697289C488400E04475 /* MainCoordinator.swift */; };
+		CE6EE69A289C4BE600E04475 /* HabitsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6EE699289C4BE600E04475 /* HabitsModel.swift */; };
 		CE7628D62731A4390010982A /* ProgressCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE7628D52731A4390010982A /* ProgressCollectionViewCell.swift */; };
 		CE92F5F12708CF2B0044EA12 /* AddHabitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE92F5F02708CF2B0044EA12 /* AddHabitViewController.swift */; };
 		CECA7CAB284280E700C9AAA7 /* HabitCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CECA7CAA284280E700C9AAA7 /* HabitCollectionViewCell.swift */; };
 		CECA7CAE2842831300C9AAA7 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = CECA7CAD2842831300C9AAA7 /* SnapKit */; };
-		CECA7CB02843E43A00C9AAA7 /* EditHabitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CECA7CAF2843E43A00C9AAA7 /* EditHabitViewController.swift */; };
+		CECA7CB02843E43A00C9AAA7 /* CurrentHabitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CECA7CAF2843E43A00C9AAA7 /* CurrentHabitViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,10 +38,13 @@
 		CE524DAF27077B20009C182B /* LaunchScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchScreenView.swift; sourceTree = "<group>"; };
 		CE524DB2270789BC009C182B /* HabitsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitsViewController.swift; sourceTree = "<group>"; };
 		CE524DB5270789C8009C182B /* InfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoViewController.swift; sourceTree = "<group>"; };
+		CE6EE695289AF3C900E04475 /* EditHabitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditHabitViewController.swift; sourceTree = "<group>"; };
+		CE6EE697289C488400E04475 /* MainCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCoordinator.swift; sourceTree = "<group>"; };
+		CE6EE699289C4BE600E04475 /* HabitsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitsModel.swift; sourceTree = "<group>"; };
 		CE7628D52731A4390010982A /* ProgressCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressCollectionViewCell.swift; sourceTree = "<group>"; };
 		CE92F5F02708CF2B0044EA12 /* AddHabitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddHabitViewController.swift; sourceTree = "<group>"; };
 		CECA7CAA284280E700C9AAA7 /* HabitCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitCollectionViewCell.swift; sourceTree = "<group>"; };
-		CECA7CAF2843E43A00C9AAA7 /* EditHabitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditHabitViewController.swift; sourceTree = "<group>"; };
+		CECA7CAF2843E43A00C9AAA7 /* CurrentHabitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentHabitViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +80,8 @@
 			children = (
 				CE524D97270776F6009C182B /* AppDelegate.swift */,
 				CE524D99270776F6009C182B /* SceneDelegate.swift */,
+				CE6EE697289C488400E04475 /* MainCoordinator.swift */,
+				CE6EE699289C4BE600E04475 /* HabitsModel.swift */,
 				CE524D9D270776F6009C182B /* Main.storyboard */,
 				CE524DA0270776F9009C182B /* Assets.xcassets */,
 				CE524DA2270776F9009C182B /* LaunchScreen.storyboard */,
@@ -85,7 +93,8 @@
 				CE92F5F02708CF2B0044EA12 /* AddHabitViewController.swift */,
 				CE7628D52731A4390010982A /* ProgressCollectionViewCell.swift */,
 				CECA7CAA284280E700C9AAA7 /* HabitCollectionViewCell.swift */,
-				CECA7CAF2843E43A00C9AAA7 /* EditHabitViewController.swift */,
+				CECA7CAF2843E43A00C9AAA7 /* CurrentHabitViewController.swift */,
+				CE6EE695289AF3C900E04475 /* EditHabitViewController.swift */,
 			);
 			path = "My Habits";
 			sourceTree = "<group>";
@@ -167,14 +176,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE524DB027077B20009C182B /* LaunchScreenView.swift in Sources */,
+				CE6EE698289C488400E04475 /* MainCoordinator.swift in Sources */,
 				CE524DB3270789BC009C182B /* HabitsViewController.swift in Sources */,
 				CE524DAD2707776D009C182B /* HabitsStore.swift in Sources */,
+				CE6EE69A289C4BE600E04475 /* HabitsModel.swift in Sources */,
+				CE6EE696289AF3C900E04475 /* EditHabitViewController.swift in Sources */,
 				CE92F5F12708CF2B0044EA12 /* AddHabitViewController.swift in Sources */,
 				CECA7CAB284280E700C9AAA7 /* HabitCollectionViewCell.swift in Sources */,
 				CE524DB6270789C8009C182B /* InfoViewController.swift in Sources */,
 				CE7628D62731A4390010982A /* ProgressCollectionViewCell.swift in Sources */,
 				CE524D98270776F6009C182B /* AppDelegate.swift in Sources */,
-				CECA7CB02843E43A00C9AAA7 /* EditHabitViewController.swift in Sources */,
+				CECA7CB02843E43A00C9AAA7 /* CurrentHabitViewController.swift in Sources */,
 				CE524D9A270776F6009C182B /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

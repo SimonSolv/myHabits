@@ -1,8 +1,10 @@
 import UIKit
 import SnapKit
 
-class HabitsViewController: UIViewController {
-    let store = HabitsStore.shared
+class HabitsViewController: UIViewController, Coordinated {
+    var coordinator: MainCoordinator
+    
+    let store: HabitsStore
     let indexPaths = 0
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -17,6 +19,15 @@ class HabitsViewController: UIViewController {
         return view
     }()
     
+    init(coordinator: MainCoordinator) {
+        self.coordinator = coordinator
+        store = self.coordinator.model.habitStore
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     override func viewWillAppear(_ animated: Bool) {
         navigationController?.navigationBar.prefersLargeTitles = true
     }
@@ -30,27 +41,13 @@ class HabitsViewController: UIViewController {
         self.title = "Сегодня"
         self.view.layer.backgroundColor = UIColor.lightGray.cgColor
         UINavigationBar.appearance().barTintColor = UIColor(red: 0.976, green: 0.976, blue: 0.976, alpha: 0.94)
-
         setupViews()
         setupConstraints()
-        let habit1 = Habit(name: "Пить с утра стакан воды", date: Date(timeIntervalSinceNow: 3000), color: UIColor.green)
-        let habit2 = Habit(name: "Вовремя ложиться спать по будням и в выходные", date: Date(timeIntervalSinceNow: 1000), color: UIColor.orange)
-        let habit3 = Habit(name: "Бегать ежедневно по 5 км", date: Date(timeIntervalSinceNow: 2000), color: UIColor.blue)
-        let habit4 = Habit(name: "Читать по 20 страниц книг", date: Date(timeIntervalSinceNow: 0), color: UIColor.red)
-        store.habits.removeAll()
-        store.habits.append(habit1)
-        store.habits.append(habit2)
-        store.habits.append(habit3)
-        store.habits.append(habit4)
         collectionView.reloadData()
     }
     
     @objc func addHabit() {
-        let vc = AddHabitViewController()
-        vc.modalPresentationStyle = .fullScreen
-        vc.rootVC = self
-        self.present(vc, animated: true, completion: nil)
-        
+        coordinator.showAdd()        
     }
     func cancel() {
         self.dismiss(animated: true, completion: nil)
@@ -78,7 +75,7 @@ class HabitsViewController: UIViewController {
         }
     }
 }
-
+//MARK: CollectionView Extention
 extension HabitsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
@@ -116,14 +113,8 @@ extension HabitsViewController: UICollectionViewDelegateFlowLayout, UICollection
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let controller = EditHabitViewController(controller: self)
+        let controller = CurrentHabitViewController(controller: self)
         controller.source = store.habits[indexPath.row-1]
         self.navigationController?.pushViewController(controller, animated: true)
     }
-    
 }
-
-//protocol ProgressProtocol {
-//    var id: Int {get}
-//    func update(bid : Float)
-//}

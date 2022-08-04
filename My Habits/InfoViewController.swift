@@ -7,7 +7,8 @@
 
 import UIKit
 
-class InfoViewController: UIViewController {
+class InfoViewController: UIViewController, Coordinated {
+    var coordinator: MainCoordinator
     let mainView = UIScrollView()
     let contentView = UIView()
     
@@ -28,6 +29,15 @@ class InfoViewController: UIViewController {
         view.numberOfLines = 0
         return view
     }()
+    
+    init(coordinator: MainCoordinator) {
+        self.coordinator = coordinator
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Информация"

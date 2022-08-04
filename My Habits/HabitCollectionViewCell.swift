@@ -21,6 +21,9 @@ class HabitCollectionViewCell: UICollectionViewCell {
             frequencyLabel.text = source?.dateString
             titleLabel.textColor = source?.color
             checkButton.layer.borderColor = source?.color.cgColor
+            if currentHabit?.isAlreadyTakenToday == true {
+                checkButton.layer.backgroundColor = source?.color.cgColor
+            }
         }
     }
     var currentHabit: Habit?
@@ -59,13 +62,25 @@ class HabitCollectionViewCell: UICollectionViewCell {
     }()
     
     
+    lazy var checkButton2: CustomCheckButton = {
+        let button = CustomCheckButton(state: false)
+        button.addTarget(self, action: #selector(checkTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    
     @objc func checkTapped() {
         if rootVC?.store.habit(source!, isTrackedIn: currenttDate) == false {
             store?.track(currentHabit!)
+            counterNum = (currentHabit?.trackDates.count)!
+            checkButton.backgroundColor = source?.color
+            habitCounter.text = "Счетчик: \(counterNum)"
+        } else {
+            currentHabit?.trackDates.removeLast()
+            checkButton.layer.backgroundColor = UIColor.white.cgColor
+            counterNum = (currentHabit?.trackDates.count)!
+            habitCounter.text = "Счетчик: \(counterNum)"
         }
-        checkButton.layer.borderWidth = 0
-        checkButton.layer.backgroundColor = UIColor.green.cgColor
-        habitCounter.text = "Счетчик: \(counterNum+1)"
     }
     
     private func setupConstraints() {
@@ -97,6 +112,7 @@ class HabitCollectionViewCell: UICollectionViewCell {
             make.centerY.equalTo(contentView.snp.centerY)
             make.trailing.equalTo(contentView.snp.trailing).offset(-25)
         }
+
         
     }
     private func setupView() {
@@ -110,12 +126,14 @@ class HabitCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        if rootVC?.store.habit(source!, isTrackedIn: currenttDate) == false {
+            checkButton2.stateStstus = false
+        } else {
+            checkButton2.stateStstus = true
+        }
         setupView()
         setupConstraints()
-        if rootVC?.store.habit(source!, isTrackedIn: currenttDate) == true {
-            checkButton.layer.borderWidth = 0
-            checkButton.layer.backgroundColor = UIColor.green.cgColor
-        }
+        
     }
     
     required init?(coder: NSCoder) {
@@ -125,26 +143,26 @@ class HabitCollectionViewCell: UICollectionViewCell {
     }
 }
 
-enum HabitState {
+enum CheckButtonState {
     case isTaken
     case notTaken
 }
 
 class CustomCheckButton: UIButton {
-    var buttonState: HabitState = .notTaken
-    init() {
-        super.init(frame: CGRect(origin: .zero, size: CGSize(width: 38, height: 38)))
-        switch buttonState {
-        case .isTaken:
-            self.layer.borderWidth = 0
-            self.layer.backgroundColor = UIColor.green.cgColor
-        case .notTaken:
-            self.layer.cornerRadius = 19
-            self.layer.borderWidth = 2
-        }
+    var stateStstus: Bool
+    init(state: Bool) {
+        self.stateStstus = state
+        super.init(frame: .zero)
+        self.layer.cornerRadius = 19
+        self.layer.borderWidth = 2
+        self.clipsToBounds = true
+        self.translatesAutoresizingMaskIntoConstraints = false
+        
     }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
 }
+    
+

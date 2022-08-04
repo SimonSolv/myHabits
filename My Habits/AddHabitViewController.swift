@@ -1,7 +1,9 @@
 import UIKit
 import SwiftUI
 
-class AddHabitViewController: UIViewController {
+class AddHabitViewController: UIViewController, Coordinated {
+    var coordinator: MainCoordinator
+    
     var habitName = ""
     var habitColor: UIColor = .cyan
     var habitDate = Date()
@@ -24,6 +26,7 @@ class AddHabitViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
     lazy var nameTextField: UITextField = {
         var textfield: UITextField = UITextField()
         textfield.translatesAutoresizingMaskIntoConstraints = false
@@ -51,6 +54,7 @@ class AddHabitViewController: UIViewController {
         color.translatesAutoresizingMaskIntoConstraints = false
         return color
     }()
+    
     lazy var timeLabel: UILabel = {
         let label = UILabel()
         label.text = "ВРЕМЯ"
@@ -58,6 +62,7 @@ class AddHabitViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
     let datePicker: UIDatePicker = {
        let date = UIDatePicker()
         date.preferredDatePickerStyle = .wheels
@@ -65,6 +70,7 @@ class AddHabitViewController: UIViewController {
         date.translatesAutoresizingMaskIntoConstraints = false
         return date
     }()
+    
     lazy var timeTextField: UITextField = {
         var textfield: UITextField = UITextField()
         textfield.translatesAutoresizingMaskIntoConstraints = false
@@ -74,6 +80,7 @@ class AddHabitViewController: UIViewController {
         textfield.textColor = .black
         return textfield
     }()
+    
     lazy var exactTimeTextField: UITextField = {
         var textfield: UITextField = UITextField()
         textfield.translatesAutoresizingMaskIntoConstraints = false
@@ -83,10 +90,12 @@ class AddHabitViewController: UIViewController {
         textfield.textColor = UIColor(named: "AppFiolet")
         return textfield
     }()
+    
     lazy var barItems: UINavigationItem = {
         let button = UINavigationItem(title: "Создать")
         return button
     }()
+    
     lazy var saveButton: UIBarButtonItem = {
         let button = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(save))
         button.tintColor = UIColor(named: "AppFiolet")
@@ -98,10 +107,20 @@ class AddHabitViewController: UIViewController {
         button.tintColor = UIColor(named: "AppFiolet")
         return button
     }()
+    //MARK: Making View
+    init(coordinator: MainCoordinator) {
+        self.coordinator = coordinator
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewWillAppear(_ animated: Bool) {
         navigationController?.navigationBar.prefersLargeTitles = false
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Создать"
@@ -113,8 +132,10 @@ class AddHabitViewController: UIViewController {
         datePicker.addTarget(self, action: #selector(timeChanged), for: .valueChanged)
         setupViews()
     }
-
-    @objc func statusTextChanged(_ textField: UITextField){
+   // MARK: Button Functions
+    @objc func statusTextChanged(_ textField: UITextField) {
+        textField.textColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        textField.font = UIFont.boldSystemFont(ofSize: 18)
         habitName = textField.text!
     }
     
@@ -132,29 +153,30 @@ class AddHabitViewController: UIViewController {
         else {
             prefix = ""
         }
-        
         exactTimeTextField.text = "\(hour):\(prefix)\(minute)"
     }
+    
     @objc private func canсel() {
-        rootVC?.cancel()
+        self.dismiss(animated: true)
+        coordinator.controllers.remove(at: 2)
     }
     
     @objc private func save() {
-        if self.nameTextField.text == "" {
+        if self.nameTextField.text?.isEmpty == true {
             let alert = UIAlertController(title: "Ошибка!", message: "Введите название привычки", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Ок", style: .cancel, handler: { _ in
             }))
             present(alert, animated: true)
         }
-        else{
-        newHabit = Habit(name: habitName, date: habitDate, color: habitColor)
-        rootVC?.store.habits.append(newHabit!)
-        rootVC?.store.save()
-        rootVC?.reloadCollectionView()
-        rootVC?.cancel()
+        else {
+            newHabit = Habit(name: habitName, date: habitDate, color: habitColor)
+            coordinator.model.habitStore.habits.append(newHabit!)
+            coordinator.model.habitStore.save()
+            coordinator.updateCV()
+            self.canсel()
         }
     }
-    
+    // MARK: Setup
     private func setupViews() {
         view.addSubview(navBar)
         view.addSubview(nameLabel)

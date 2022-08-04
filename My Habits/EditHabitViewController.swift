@@ -2,98 +2,263 @@
 //  EditHabitViewController.swift
 //  My Habits
 //
-//  Created by Simon Pegg on 29.05.2022.
+//  Created by Simon Pegg on 03.08.2022.
 //
-
+import SwiftUI
 import UIKit
 
 class EditHabitViewController: UIViewController {
-    var initialController: HabitsViewController
-    lazy var label = UILabel()
-    var source: Habit? {
+
+    var currentHabit: Habit? {
         didSet {
-            self.title = source?.name
+            self.nameTextField.text = currentHabit!.name
+            self.nameTextField.font = UIFont.boldSystemFont(ofSize: 18)
+            self.nameTextField.textColor = #colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1)
+            self.colorPicker.selectedColor = currentHabit!.color
+            self.timeTextField.text = currentHabit?.dateString
         }
     }
-    private lazy var dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = .init(identifier: "ru_RU")
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        formatter.doesRelativeDateFormatting = true
-        return formatter
+    
+    var habitName = ""
+    var habitColor: UIColor = .cyan
+    var habitDate = Date()
+    let calendar = Calendar.current
+    var prefix = ""
+    var rootVC: CurrentHabitViewController?
+    var newHabit: Habit?
+
+    lazy var navBar: UINavigationBar = {
+        let bar = UINavigationBar()
+        bar.barTintColor = .white
+        bar.translatesAutoresizingMaskIntoConstraints = false
+        return bar
     }()
     
-    let tableView = UITableView()
+    lazy var nameLabel: UILabel = {
+        let label = UILabel()
+        label.text = "НАЗВАНИЕ"
+        label.font = .boldSystemFont(ofSize: 13)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
-    func setupViews() {
-        view.addSubview(tableView)
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-    }
-    
-    func setupConstraints() {
-        tableView.snp.makeConstraints { (make) in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
-            make.leading.equalTo(view.snp.leading)
-            make.trailing.equalTo(view.snp.trailing)
-        }
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        
-    }
-    init (controller: HabitsViewController) {
+    lazy var nameTextField: UITextField = {
+        var textfield: UITextField = UITextField()
+        textfield.translatesAutoresizingMaskIntoConstraints = false
+        textfield.backgroundColor = .white
+        textfield.font = .systemFont(ofSize: 17)
+        textfield.textColor = .lightGray
+        textfield.addTarget(self, action: #selector(statusTextChanged), for: .editingChanged)
+        return textfield
+    }()
 
-        self.initialController = controller
-        super.init(nibName: nil, bundle: nil)
-    }
+    lazy var colorLabel: UILabel = {
+        let label = UILabel()
+        label.text = "ЦВЕТ"
+        label.font = .boldSystemFont(ofSize: 13)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    lazy var colorPicker: UIColorWell = {
+       let color = UIColorWell()
+        color.supportsAlpha = true
+        color.selectedColor = .cyan
+        color.title = "Выберите цвет"
+        color.translatesAutoresizingMaskIntoConstraints = false
+        return color
+    }()
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    lazy var timeLabel: UILabel = {
+        let label = UILabel()
+        label.text = "ВРЕМЯ"
+        label.font = .boldSystemFont(ofSize: 13)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
+    let datePicker: UIDatePicker = {
+       let date = UIDatePicker()
+        date.preferredDatePickerStyle = .wheels
+        date.datePickerMode = .time
+        date.translatesAutoresizingMaskIntoConstraints = false
+        return date
+    }()
+    
+    lazy var timeTextField: UITextField = {
+        var textfield: UITextField = UITextField()
+        textfield.translatesAutoresizingMaskIntoConstraints = false
+        textfield.backgroundColor = .white
+        textfield.text = "Каждый день в "
+        textfield.font = .systemFont(ofSize: 17)
+        textfield.textColor = .black
+        return textfield
+    }()
+    
+    lazy var exactTimeTextField: UITextField = {
+        var textfield: UITextField = UITextField()
+        textfield.translatesAutoresizingMaskIntoConstraints = false
+        textfield.backgroundColor = .white
+        textfield.placeholder = "11.00 PM"
+        textfield.font = .systemFont(ofSize: 17)
+        textfield.textColor = UIColor(named: "AppFiolet")
+        return textfield
+    }()
+    
+    lazy var barItems: UINavigationItem = {
+        let button = UINavigationItem(title: "Править")
+        return button
+    }()
+    
+    lazy var saveButton: UIBarButtonItem = {
+        let button = UIBarButtonItem(title: "Сохранить", style: .done, target: self, action: #selector(save))
+        button.tintColor = UIColor(named: "AppFiolet")
+        return button
+    }()
+    
+    lazy var cancelButton: UIBarButtonItem = {
+        let button = UIBarButtonItem(title: "Отмена", style: .done, target: self, action: #selector(canсel))
+        button.tintColor = UIColor(named: "AppFiolet")
+        return button
+    }()
+    
+    lazy var deleteButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Удалить привычку", for: .normal)
+        button.setTitleColor(UIColor.red, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(deleteHabit), for: .touchUpInside)
+        return button
+    }()
+    
+    override func viewWillAppear(_ animated: Bool) {
+        navigationController?.navigationBar.prefersLargeTitles = false
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        navigationController?.navigationBar.prefersLargeTitles = false
+        self.title = "Создать"
+        navBar.setItems([barItems], animated: false)
+        barItems.rightBarButtonItem = saveButton
+        barItems.leftBarButtonItem = cancelButton
+        self.view.backgroundColor = .white
+        colorPicker.addTarget(self, action: #selector(colorChanged), for: .valueChanged)
+        datePicker.addTarget(self, action: #selector(timeChanged), for: .valueChanged)
         setupViews()
-        setupConstraints()
+    }
+
+    @objc func statusTextChanged(_ textField: UITextField){
+        habitName = textField.text!
+    }
+    @objc func deleteHabit() {
+
     }
     
-    public func trackHabitString(forIndex index: Int) -> String? {
-        guard index < (source?.trackDates.count)! else {
-            return nil
+    @objc private func colorChanged() {
+        habitColor = colorPicker.selectedColor!
+    }
+    
+    @objc private func timeChanged() {
+        habitDate = datePicker.date
+        let hour = calendar.component(.hour, from: habitDate)
+        let minute = calendar.component(.minute, from: habitDate)
+        if minute < 10 {
+            prefix = "0"
         }
-        return dateFormatter.string(from: (source?.trackDates[index])!)
-    }
-
-}
-extension EditHabitViewController: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return source?.trackDates.count ?? 0
-    }
-
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let text = (trackHabitString(forIndex: indexPath.row))
-        if text != nil {
-            cell.textLabel?.text = "\(text!)"
+        else {
+            prefix = ""
         }
-
+        exactTimeTextField.isHidden = false
+        timeTextField.text = "Каждый день в "
+        exactTimeTextField.text = "\(hour):\(prefix)\(minute)"
+    }
+    @objc private func canсel() {
+        self.dismiss(animated: true)
+    }
+    
+    @objc private func save() {
+        if self.nameTextField.text?.isEmpty == true {
+            let alert = UIAlertController(title: "Ошибка!", message: "Введите название привычки", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Ок", style: .cancel, handler: { _ in
+            }))
+            present(alert, animated: true)
+        }
+        else {
+//        newHabit = Habit(name: habitName, date: habitDate, color: habitColor)
+//        rootVC?.store.habits.append(newHabit!)
+//        rootVC?.store.save()
+//        rootVC?.reloadCollectionView()
+//        rootVC?.cancel()
+        }
+    }
+    
+    private func setupViews() {
+        view.addSubview(navBar)
+        view.addSubview(nameLabel)
+        view.addSubview(nameTextField)
+        view.addSubview(colorLabel)
+        view.addSubview(colorPicker)
+        view.addSubview(timeLabel)
+        view.addSubview(timeTextField)
+        view.addSubview(exactTimeTextField)
+        view.addSubview(datePicker)
+        view.addSubview(deleteButton)
+        exactTimeTextField.isHidden = true
         
-        return cell
+        let constraints = [
+            navBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            navBar.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            navBar.heightAnchor.constraint(equalToConstant: 50),
+            navBar.widthAnchor.constraint(equalTo: view.widthAnchor),
+            
+            nameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 80),
+            nameLabel.heightAnchor.constraint(equalToConstant: 18),
+            nameLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            nameTextField.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
+            nameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor ,constant: -16),
+            nameTextField.topAnchor.constraint(equalTo: nameLabel.bottomAnchor,constant: 10),
+            nameTextField.heightAnchor.constraint(equalToConstant: 30),
+        
+            colorLabel.leadingAnchor.constraint(equalTo: nameTextField.leadingAnchor),
+            colorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor ,constant: -16),
+            colorLabel.topAnchor.constraint(equalTo: nameTextField.bottomAnchor,constant: 10),
+            colorLabel.heightAnchor.constraint(equalToConstant: 30),
+            
+            colorPicker.leadingAnchor.constraint(equalTo: colorLabel.leadingAnchor),
+            colorPicker.topAnchor.constraint(equalTo: colorLabel.bottomAnchor,constant: 10),
+            colorPicker.heightAnchor.constraint(equalToConstant: 30),
+            colorPicker.widthAnchor.constraint(equalToConstant: 30),
+            
+            timeLabel.leadingAnchor.constraint(equalTo: colorPicker.leadingAnchor),
+            timeLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor ,constant: -16),
+            timeLabel.topAnchor.constraint(equalTo: colorPicker.bottomAnchor,constant: 10),
+            timeLabel.heightAnchor.constraint(equalToConstant: 30),
+            
+            timeTextField.leadingAnchor.constraint(equalTo: timeLabel.leadingAnchor),
+            timeTextField.widthAnchor.constraint(equalToConstant: 200),
+            timeTextField.topAnchor.constraint(equalTo: timeLabel.bottomAnchor,constant: 10),
+            timeTextField.heightAnchor.constraint(equalToConstant: 30),
+            
+            exactTimeTextField.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 142),
+            exactTimeTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor ,constant: -16),
+            exactTimeTextField.topAnchor.constraint(equalTo: timeLabel.bottomAnchor,constant: 10),
+            exactTimeTextField.heightAnchor.constraint(equalToConstant: 30),
+            
+            datePicker.leadingAnchor.constraint(equalTo: timeLabel.leadingAnchor),
+            datePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor ,constant: -16),
+            datePicker.topAnchor.constraint(equalTo: view.topAnchor,constant: 370),
+            datePicker.heightAnchor.constraint(equalToConstant: 100),
+            
+            deleteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            deleteButton.topAnchor.constraint(equalTo: view.bottomAnchor,constant: -100),
+            deleteButton.heightAnchor.constraint(equalToConstant: 50)
+        
+        ]
+        NSLayoutConstraint.activate(constraints)
     }
-//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-//        cell.textLabel?.text = sourceDates[indexpath.row]
-//            return cell
-//    }
 
 }
+
+
+
+
