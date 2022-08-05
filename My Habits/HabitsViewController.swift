@@ -3,7 +3,6 @@ import SnapKit
 
 class HabitsViewController: UIViewController, Coordinated {
     var coordinator: MainCoordinator
-    
     let store: HabitsStore
     let indexPaths = 0
     private lazy var collectionView: UICollectionView = {
@@ -21,7 +20,7 @@ class HabitsViewController: UIViewController, Coordinated {
     
     init(coordinator: MainCoordinator) {
         self.coordinator = coordinator
-        store = self.coordinator.model.habitStore
+        store = self.coordinator.habitStore
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -30,16 +29,17 @@ class HabitsViewController: UIViewController, Coordinated {
     }
     override func viewWillAppear(_ animated: Bool) {
         navigationController?.navigationBar.prefersLargeTitles = true
+        collectionView.reloadData()
     }
     override func viewDidLoad() {
         super.viewDidLoad()
         UITabBar.appearance().tintColor = UIColor(named: "AppFiolet")
+        UINavigationBar.appearance().backgroundColor = .white
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addHabit))
         addButton.tintColor = UIColor(named: "AppFiolet")
         navigationItem.rightBarButtonItem = addButton
-        view.layer.backgroundColor = UIColor(red: 0.949, green: 0.949, blue: 0.969, alpha: 1).cgColor
         self.title = "Сегодня"
-        self.view.layer.backgroundColor = UIColor.lightGray.cgColor
+        self.view.layer.backgroundColor = UIColor.systemGray6.cgColor
         UINavigationBar.appearance().barTintColor = UIColor(red: 0.976, green: 0.976, blue: 0.976, alpha: 0.94)
         setupViews()
         setupConstraints()
@@ -49,18 +49,34 @@ class HabitsViewController: UIViewController, Coordinated {
     @objc func addHabit() {
         coordinator.showAdd()        
     }
-    func cancel() {
-        self.dismiss(animated: true, completion: nil)
-    }
+//    func cancel() {
+//        self.dismiss(animated: true, completion: nil)
+//    }
     func reloadCollectionView() {
         collectionView.reloadData()
     }
 
-    let indexpath: [IndexPath] = {
-       let index = IndexPath(index: 0)
-        return [index]
-    }()
-
+    func updateCV1() {
+        let index = IndexPath(row: 0, section: 0)
+        collectionView.reloadItems(at: [index])
+    }
+//    let indexpath: [IndexPath] = {
+//       let index = IndexPath(index: 0)
+//        return [index]
+//    }()
+    func removeHabit(_ habit: Habit?) {
+        guard
+            store.habits.isEmpty == false,
+            let habit = habit
+            else { return }
+        
+        for (index, element) in store.habits.enumerated() {
+            if element === habit {
+                store.habits.remove(at: index)
+                break
+            }
+        }
+    }
      func setupViews() {
         view.addSubview(collectionView)
         collectionView.layer.backgroundColor = UIColor(named: "Gray")?.cgColor
@@ -88,8 +104,8 @@ extension HabitsViewController: UICollectionViewDelegateFlowLayout, UICollection
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProgressCollectionViewCell.identifier, for: indexPath) as! ProgressCollectionViewCell
-            cell.progress = store.todayProgress
             cell.rootVC = self
+            cell.updateProgress(newProgress: store.todayProgress)
             return cell
         } else {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: HabitCollectionViewCell.identifier, for: indexPath) as! HabitCollectionViewCell
@@ -113,8 +129,6 @@ extension HabitsViewController: UICollectionViewDelegateFlowLayout, UICollection
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let controller = CurrentHabitViewController(controller: self)
-        controller.source = store.habits[indexPath.row-1]
-        self.navigationController?.pushViewController(controller, animated: true)
+        coordinator.showCurrent(index: indexPath, sourceController: self)
     }
 }

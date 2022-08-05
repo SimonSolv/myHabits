@@ -1,9 +1,11 @@
 import Foundation
 import UIKit
 
-class MainCoordinator: CoordinatorProtocol {
-    var controllers: [Coordinated] = []
-    var model = HabitsModel()
+class MainCoordinator {
+    var childControllers: [Coordinated] = []
+    let habitStore = HabitsStore.shared
+    
+    //MARK: Immortal ViewControllers
     lazy var habitsVC: HabitsViewController = {
         let vc = HabitsViewController(coordinator: self)
         vc.title = "Сегодня"
@@ -17,13 +19,45 @@ class MainCoordinator: CoordinatorProtocol {
         vc.tabBarItem = UITabBarItem(title: "Информация", image:UIImage(named: "InfoBarItem") , tag: 1)
         return vc
     }()
+    //MARK: Coordinator methods
     
-    func start() {
-        
+    func showCurrent(index: IndexPath, sourceController: UIViewController) {
+        let controller = CurrentHabitViewController(coordinator: self)
+        controller.source = habitStore.habits[index.row-1]
+        controller.currentIndex = index
+        self.addDependency(controller)
+        sourceController.navigationController?.pushViewController(controller, animated: true)
     }
     
-    func updateCV() {
-        habitsVC.reloadCollectionView()
+    func showEdit(index: IndexPath, sourceController: CurrentHabitViewController) {
+        let controller = EditHabitViewController(coordinator: self)
+        controller.modalPresentationStyle = .fullScreen
+        controller.currentHabit = habitStore.habits[index.row-1]
+        controller.habitsVC = habitsVC
+        controller.rootVC = sourceController
+        self.addDependency(controller)
+        sourceController.present(controller, animated: true, completion: nil)
+    }
+
+    func addDependency(_ controller: Coordinated) {
+        for element in childControllers {
+            if element === controller { return }
+        }
+        childControllers.append(controller)
+    }
+    
+    func removeDependency(_ controller: Coordinated?) {
+        guard
+            childControllers.isEmpty == false,
+            let removeController = controller
+            else { return }
+        
+        for (index, element) in childControllers.enumerated() {
+            if element === removeController {
+                childControllers.remove(at: index)
+                break
+            }
+        }
     }
     
     func startMain() -> UITabBarController {
@@ -33,27 +67,21 @@ class MainCoordinator: CoordinatorProtocol {
         let infoNavVc = UINavigationController(rootViewController: infoVC)
         tabBarController.viewControllers = [habitsNavVc , infoNavVc]
         tabBarController.tabBar.backgroundColor = UIColor(red: 0.969, green: 0.969, blue: 0.969, alpha: 0.8)
-        controllers.append(habitsVC)
-        controllers.append(infoVC)
+        addDependency(habitsVC)
+        addDependency(infoVC)
         return tabBarController
     }
     
     func showAdd() {
         let vc = AddHabitViewController(coordinator: self)
         vc.modalPresentationStyle = .fullScreen
-        controllers.append(vc)
+        addDependency(vc)
         habitsVC.present(vc, animated: true, completion: nil)
     }
-    
-    func showDates() {
-        
-    }
+
 }
 
-protocol Coordinated {
+//MARK: Protocol
+protocol Coordinated: class {
     var coordinator: MainCoordinator {get set}
-}
-
-protocol CoordinatorProtocol {
-    func start()
 }

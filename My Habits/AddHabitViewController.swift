@@ -158,7 +158,7 @@ class AddHabitViewController: UIViewController, Coordinated {
     
     @objc private func canсel() {
         self.dismiss(animated: true)
-        coordinator.controllers.remove(at: 2)
+        coordinator.removeDependency(self)
     }
     
     @objc private func save() {
@@ -170,9 +170,8 @@ class AddHabitViewController: UIViewController, Coordinated {
         }
         else {
             newHabit = Habit(name: habitName, date: habitDate, color: habitColor)
-            coordinator.model.habitStore.habits.append(newHabit!)
-            coordinator.model.habitStore.save()
-            coordinator.updateCV()
+            coordinator.habitStore.habits.append(newHabit!)
+            coordinator.habitStore.save()
             self.canсel()
         }
     }

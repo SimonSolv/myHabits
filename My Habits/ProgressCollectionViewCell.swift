@@ -7,12 +7,9 @@ class ProgressCollectionViewCell: UICollectionViewCell {
     var source: HabitsStore? {
         didSet {
             progress = source?.todayProgress
-            progressBar.snp.makeConstraints { (make) in
-                make.width.equalTo(progress!)
-                percentLabel.text = "\(Int(progress ?? 0))%"
             }
         }
-    }
+    
     var onTap: (() -> Void)?
     var progress: Float? = 0
     var rootVC: HabitsViewController?
@@ -37,20 +34,11 @@ class ProgressCollectionViewCell: UICollectionViewCell {
         return label
     }()
     
-    lazy var progressBarLayout: UIView = {
-        let view = UIView()
-        view.layer.backgroundColor = UIColor.lightGray.cgColor
-        view.layer.cornerRadius = 3
-        view.clipsToBounds = true
-        return view
-    }()
-    
-    lazy var progressBar: UIView = {
-        let view = UIView()
-        view.layer.backgroundColor = UIColor(named: "AppFiolet")?.cgColor
-        view.layer.cornerRadius = 3
-        view.clipsToBounds = true
-        return view
+    let progressView: UIProgressView = {
+        let view = UIProgressView(progressViewStyle: .default)
+        view.trackTintColor = .systemGray3
+        view.progressTintColor = UIColor(named: "AppFiolet")
+       return view
     }()
     
     private func setupConstraints() {
@@ -72,27 +60,23 @@ class ProgressCollectionViewCell: UICollectionViewCell {
             make.trailing.equalTo(contentView.snp.trailing).offset(-12)
         }
 
-        progressBarLayout.snp.makeConstraints { (make) in
+        progressView.snp.makeConstraints { (make) in
             make.top.equalTo(contentView.snp.top).offset(38)
             make.leading.equalTo(titleLabel.snp.leading)
             make.height.equalTo(7)
             make.width.equalTo(screenWidth - 50)
         }
-
-        progressBar.snp.makeConstraints { (make) in
-            make.top.equalTo(progressBarLayout.snp.top)
-            make.leading.equalTo(progressBarLayout.snp.leading)
-            make.height.equalTo(7)
-            make.width.equalTo(progress!)
-        }
+    }
+    
+    func updateProgress(newProgress : Float) {
+        self.progressView.setProgress(newProgress, animated: false)
+        self.percentLabel.text = "\(Int(newProgress*100))%"
     }
     
     private func setupView() {
         contentView.addSubview(titleLabel)
         contentView.addSubview(percentLabel)
-        contentView.addSubview(progressBarLayout)
-        contentView.addSubview(progressBar)
-        contentView.bringSubviewToFront(progressBar)
+        contentView.addSubview(progressView)
         contentView.layer.backgroundColor = UIColor.white.cgColor
         contentView.layer.cornerRadius = 8
     }
@@ -101,6 +85,7 @@ class ProgressCollectionViewCell: UICollectionViewCell {
         super.init(frame: frame)
         setupView()
         setupConstraints()
+        progressView.setProgress(progress!, animated: true)
     }
     
     required init?(coder: NSCoder) {

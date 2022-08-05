@@ -1,14 +1,9 @@
-//
-//  EditHabitViewController.swift
-//  My Habits
-//
-//  Created by Simon Pegg on 03.08.2022.
-//
 import SwiftUI
 import UIKit
 
-class EditHabitViewController: UIViewController {
-
+class EditHabitViewController: UIViewController, Coordinated {
+    var coordinator: MainCoordinator
+    
     var currentHabit: Habit? {
         didSet {
             self.nameTextField.text = currentHabit!.name
@@ -25,8 +20,9 @@ class EditHabitViewController: UIViewController {
     let calendar = Calendar.current
     var prefix = ""
     var rootVC: CurrentHabitViewController?
+    var habitsVC: HabitsViewController?
     var newHabit: Habit?
-
+    
     lazy var navBar: UINavigationBar = {
         let bar = UINavigationBar()
         bar.barTintColor = .white
@@ -51,7 +47,7 @@ class EditHabitViewController: UIViewController {
         textfield.addTarget(self, action: #selector(statusTextChanged), for: .editingChanged)
         return textfield
     }()
-
+    
     lazy var colorLabel: UILabel = {
         let label = UILabel()
         label.text = "ЦВЕТ"
@@ -59,9 +55,9 @@ class EditHabitViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     lazy var colorPicker: UIColorWell = {
-       let color = UIColorWell()
+        let color = UIColorWell()
         color.supportsAlpha = true
         color.selectedColor = .cyan
         color.title = "Выберите цвет"
@@ -78,7 +74,7 @@ class EditHabitViewController: UIViewController {
     }()
     
     let datePicker: UIDatePicker = {
-       let date = UIDatePicker()
+        let date = UIDatePicker()
         date.preferredDatePickerStyle = .wheels
         date.datePickerMode = .time
         date.translatesAutoresizingMaskIntoConstraints = false
@@ -131,6 +127,15 @@ class EditHabitViewController: UIViewController {
         return button
     }()
     
+    init(coordinator: MainCoordinator) {
+        self.coordinator = coordinator
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         navigationController?.navigationBar.prefersLargeTitles = false
     }
@@ -145,12 +150,22 @@ class EditHabitViewController: UIViewController {
         datePicker.addTarget(self, action: #selector(timeChanged), for: .valueChanged)
         setupViews()
     }
-
+    
     @objc func statusTextChanged(_ textField: UITextField){
         habitName = textField.text!
     }
     @objc func deleteHabit() {
-
+        let alert = UIAlertController(title: "Удалить привычку", message: "Вы дейстаительно хотите удалить привычку \(currentHabit!.name)?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel, handler: { _ in
+        }))
+        alert.addAction(UIAlertAction(title: "Удалить", style: .destructive, handler: { _ in
+            self.habitsVC?.removeHabit(self.currentHabit)
+            self.habitsVC?.reloadCollectionView()
+            self.coordinator.removeDependency(self)
+            self.dismiss(animated: false)
+        }))
+        present(alert, animated: true)
+        
     }
     
     @objc private func colorChanged() {
@@ -183,11 +198,10 @@ class EditHabitViewController: UIViewController {
             present(alert, animated: true)
         }
         else {
-//        newHabit = Habit(name: habitName, date: habitDate, color: habitColor)
-//        rootVC?.store.habits.append(newHabit!)
-//        rootVC?.store.save()
-//        rootVC?.reloadCollectionView()
-//        rootVC?.cancel()
+            currentHabit?.name = nameTextField.text!
+            currentHabit?.color = colorPicker.selectedColor!
+            currentHabit?.date = datePicker.date
+            self.dismiss(animated: true)
         }
     }
     
@@ -217,7 +231,7 @@ class EditHabitViewController: UIViewController {
             nameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor ,constant: -16),
             nameTextField.topAnchor.constraint(equalTo: nameLabel.bottomAnchor,constant: 10),
             nameTextField.heightAnchor.constraint(equalToConstant: 30),
-        
+            
             colorLabel.leadingAnchor.constraint(equalTo: nameTextField.leadingAnchor),
             colorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor ,constant: -16),
             colorLabel.topAnchor.constraint(equalTo: nameTextField.bottomAnchor,constant: 10),
@@ -252,11 +266,11 @@ class EditHabitViewController: UIViewController {
             deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             deleteButton.topAnchor.constraint(equalTo: view.bottomAnchor,constant: -100),
             deleteButton.heightAnchor.constraint(equalToConstant: 50)
-        
+            
         ]
         NSLayoutConstraint.activate(constraints)
     }
-
+    
 }
 
 

@@ -7,14 +7,20 @@
 
 import UIKit
 
-class CurrentHabitViewController: UIViewController {
-    var initialController: HabitsViewController
+class CurrentHabitViewController: UIViewController, Coordinated {
+    
+    var coordinator: MainCoordinator
+
     lazy var label = UILabel()
+    
+    var currentIndex: IndexPath?
+    
     var source: Habit? {
         didSet {
             self.title = source?.name
         }
     }
+    
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = .init(identifier: "ru_RU")
@@ -23,13 +29,14 @@ class CurrentHabitViewController: UIViewController {
         formatter.doesRelativeDateFormatting = true
         return formatter
     }()
+    
     lazy var barItem: UIBarButtonItem = {
         let view = UIBarButtonItem(title: "Править", style: .plain, target: self, action: #selector(editTapped))
         view.tintColor = UIColor(named: "AppFiolet")
         return view
     }()
     
-    let tableView = UITableView()
+    lazy var tableView = UITableView()
     
     func setupViews() {
         view.addSubview(tableView)
@@ -44,11 +51,7 @@ class CurrentHabitViewController: UIViewController {
     }
     
     @objc func editTapped() {
-        let vc = EditHabitViewController()
-        vc.modalPresentationStyle = .fullScreen
-        vc.rootVC = self
-        vc.currentHabit = source
-        self.present(vc, animated: true, completion: nil)
+        coordinator.showEdit(index: currentIndex!, sourceController: self)
     }
     
     func setupConstraints() {
@@ -60,8 +63,8 @@ class CurrentHabitViewController: UIViewController {
         }
     }
     
-    init (controller: HabitsViewController) {
-        self.initialController = controller
+    init (coordinator: MainCoordinator) {
+        self.coordinator = coordinator
         super.init(nibName: nil, bundle: nil)
     }
     
