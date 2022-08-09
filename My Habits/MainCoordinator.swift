@@ -3,6 +3,7 @@ import UIKit
 
 class MainCoordinator {
     var childControllers: [Coordinated] = []
+    var tabBarController: UITabBarController?
     let habitStore = HabitsStore.shared
     
     //MARK: Immortal ViewControllers
@@ -10,23 +11,24 @@ class MainCoordinator {
         let vc = HabitsViewController(coordinator: self)
         vc.title = "Сегодня"
         vc.tabBarItem = UITabBarItem(title: "Привычки", image: UIImage(named: "HabitsBarIcon") , tag: 0)
-        vc.view.backgroundColor = .white
+        vc.view.backgroundColor = .systemBackground
         return vc
     }()
     
     lazy var infoVC: InfoViewController = {
         let vc = InfoViewController(coordinator: self)
         vc.tabBarItem = UITabBarItem(title: "Информация", image:UIImage(named: "InfoBarItem") , tag: 1)
+        vc.view.backgroundColor = .systemBackground
         return vc
     }()
     //MARK: Coordinator methods
     
-    func showCurrent(index: IndexPath, sourceController: UIViewController) {
+    func showCurrent(index: IndexPath) {
         let controller = CurrentHabitViewController(coordinator: self)
         controller.source = habitStore.habits[index.row-1]
         controller.currentIndex = index
         self.addDependency(controller)
-        sourceController.navigationController?.pushViewController(controller, animated: true)
+        habitsVC.navigationController?.pushViewController(controller, animated: true)
     }
     
     func showEdit(index: IndexPath, sourceController: CurrentHabitViewController) {
@@ -60,16 +62,21 @@ class MainCoordinator {
         }
     }
     
+    func showHabits() {
+        self.tabBarController?.navigationController?.popToViewController(habitsVC, animated: true)
+        print("Pressed Save")
+    }
+    
     func startMain() -> UITabBarController {
-        let tabBarController = UITabBarController()
+        tabBarController = UITabBarController()
         let habitsNavVc = UINavigationController(rootViewController: habitsVC)
         habitsNavVc.navigationBar.prefersLargeTitles = true
         let infoNavVc = UINavigationController(rootViewController: infoVC)
-        tabBarController.viewControllers = [habitsNavVc , infoNavVc]
-        tabBarController.tabBar.backgroundColor = UIColor(red: 0.969, green: 0.969, blue: 0.969, alpha: 0.8)
+        tabBarController!.viewControllers = [habitsNavVc , infoNavVc]
+        tabBarController!.tabBar.backgroundColor = .systemBackground
         addDependency(habitsVC)
         addDependency(infoVC)
-        return tabBarController
+        return tabBarController!
     }
     
     func showAdd() {

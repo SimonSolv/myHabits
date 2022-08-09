@@ -41,7 +41,7 @@ class InfoViewController: UIViewController, Coordinated {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Информация"
-        self.view.backgroundColor = UIColor(cgColor: CGColor(red: 255, green: 255, blue: 255, alpha: 1))
+        self.view.backgroundColor = .systemBackground
         setupViews()
     }
     

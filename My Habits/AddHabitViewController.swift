@@ -14,7 +14,7 @@ class AddHabitViewController: UIViewController, Coordinated {
 
     lazy var navBar: UINavigationBar = {
         let bar = UINavigationBar()
-        bar.barTintColor = .white
+        bar.barTintColor = .systemBackground
         bar.translatesAutoresizingMaskIntoConstraints = false
         return bar
     }()
@@ -30,8 +30,9 @@ class AddHabitViewController: UIViewController, Coordinated {
     lazy var nameTextField: UITextField = {
         var textfield: UITextField = UITextField()
         textfield.translatesAutoresizingMaskIntoConstraints = false
-        textfield.backgroundColor = .white
-        textfield.placeholder = "Бегать по утрам, спать по 8 часов и т.п."
+        textfield.backgroundColor = .systemGray3
+        textfield.layer.cornerRadius = 5
+        textfield.placeholder = "  Бегать по утрам, спать по 8 часов и т.п."
         textfield.font = .systemFont(ofSize: 17)
         textfield.textColor = .lightGray
         textfield.addTarget(self, action: #selector(statusTextChanged), for: .editingChanged)
@@ -74,17 +75,21 @@ class AddHabitViewController: UIViewController, Coordinated {
     lazy var timeTextField: UITextField = {
         var textfield: UITextField = UITextField()
         textfield.translatesAutoresizingMaskIntoConstraints = false
-        textfield.backgroundColor = .white
+        textfield.backgroundColor = .systemGray3
+        textfield.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: textfield.frame.height))
+        textfield.leftViewMode = .always
+        textfield.layer.cornerRadius = 5
         textfield.text = "Каждый день в "
         textfield.font = .systemFont(ofSize: 17)
-        textfield.textColor = .black
         return textfield
     }()
     
     lazy var exactTimeTextField: UITextField = {
         var textfield: UITextField = UITextField()
         textfield.translatesAutoresizingMaskIntoConstraints = false
-        textfield.backgroundColor = .white
+        textfield.backgroundColor = .clear
+        textfield.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: textfield.frame.height))
+        textfield.leftViewMode = .always
         textfield.placeholder = "11.00 PM"
         textfield.font = .systemFont(ofSize: 17)
         textfield.textColor = UIColor(named: "AppFiolet")
@@ -127,14 +132,14 @@ class AddHabitViewController: UIViewController, Coordinated {
         navBar.setItems([barItems], animated: false)
         barItems.rightBarButtonItem = saveButton
         barItems.leftBarButtonItem = cancelButton
-        self.view.backgroundColor = .white
+        self.view.backgroundColor = .systemBackground
         colorPicker.addTarget(self, action: #selector(colorChanged), for: .valueChanged)
         datePicker.addTarget(self, action: #selector(timeChanged), for: .valueChanged)
         setupViews()
     }
    // MARK: Button Functions
     @objc func statusTextChanged(_ textField: UITextField) {
-        textField.textColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        textField.textColor = .systemBlue
         textField.font = UIFont.boldSystemFont(ofSize: 18)
         habitName = textField.text!
     }
@@ -217,11 +222,11 @@ class AddHabitViewController: UIViewController, Coordinated {
             timeLabel.heightAnchor.constraint(equalToConstant: 30),
             
             timeTextField.leadingAnchor.constraint(equalTo: timeLabel.leadingAnchor),
-            timeTextField.widthAnchor.constraint(equalToConstant: 124),
+            timeTextField.widthAnchor.constraint(equalToConstant: 210),
             timeTextField.topAnchor.constraint(equalTo: timeLabel.bottomAnchor,constant: 10),
             timeTextField.heightAnchor.constraint(equalToConstant: 30),
             
-            exactTimeTextField.leadingAnchor.constraint(equalTo: timeTextField.trailingAnchor),
+            exactTimeTextField.leadingAnchor.constraint(equalTo: timeTextField.trailingAnchor, constant: -86),
             exactTimeTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor ,constant: -16),
             exactTimeTextField.topAnchor.constraint(equalTo: timeLabel.bottomAnchor,constant: 10),
             exactTimeTextField.heightAnchor.constraint(equalToConstant: 30),

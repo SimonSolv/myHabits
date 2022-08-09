@@ -17,14 +17,15 @@ class HabitCollectionViewCell: UICollectionViewCell {
             currentHabit = source
             self.counterNum = (currentHabit?.trackDates.count)!
             habitCounter.text = "Счетчик: \(counterNum)"
-            titleLabel.text = source?.name
-            frequencyLabel.text = source?.dateString
-            titleLabel.textColor = source?.color
-            checkButton.layer.borderColor = source?.color.cgColor
+            titleLabel.text = currentHabit?.name
+            frequencyLabel.text = currentHabit?.dateString
+            titleLabel.textColor = currentHabit?.color
+            checkButton.layer.borderColor = currentHabit?.color.cgColor
+            checkButton.tintColor = currentHabit?.color
             if currentHabit?.isAlreadyTakenToday == true {
-                checkButton.layer.backgroundColor = source?.color.cgColor
+                setSelected()
             } else {
-                checkButton.layer.backgroundColor = UIColor.white.cgColor
+                setDeselected()
             }
         }
     }
@@ -42,37 +43,56 @@ class HabitCollectionViewCell: UICollectionViewCell {
     
     lazy var frequencyLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .lightGray
+        label.textColor = .systemGray
         label.font = .systemFont(ofSize: 12)
         return label
     }()
     
     lazy var habitCounter: UILabel = {
         let label = UILabel()
-        label.textColor = .gray
+        label.textColor = .systemGray2
         label.font = .systemFont(ofSize: 13)
         return label
     }()
     
+    private let checkedImage = UIImage(
+        systemName: "checkmark.circle.fill",
+        withConfiguration: UIImage.SymbolConfiguration(
+            pointSize: 35,
+            weight: .regular,
+            scale: .large
+        )
+    )
+    
     lazy var checkButton: UIButton = {
-        let view = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 38, height: 38)))
+        let view = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 34, height: 34)))
         view.layer.cornerRadius = 19
-        view.layer.borderWidth = 2
         view.translatesAutoresizingMaskIntoConstraints = false
         view.addTarget(self, action: #selector(checkTapped), for: .touchUpInside)
         return view
     }()
     
+    func setSelected() {
+        checkButton.layer.borderWidth = 0
+        checkButton.setImage(checkedImage, for: .normal)
+    }
+    
+    func setDeselected() {
+        checkButton.layer.backgroundColor = UIColor(named: "AppWhite")?.cgColor
+        checkButton.layer.borderWidth = 2
+        checkButton.setImage(nil, for: .normal)
+    }
+    
     @objc func checkTapped() {
         if rootVC?.store.habit(source!, isTrackedIn: currenttDate) == false {
             store?.track(currentHabit!)
             counterNum = (currentHabit?.trackDates.count)!
-            checkButton.backgroundColor = source?.color
+            setSelected()
             habitCounter.text = "Счетчик: \(counterNum)"
             rootVC?.updateCV1()
         } else {
             currentHabit?.trackDates.removeLast()
-            checkButton.layer.backgroundColor = UIColor.white.cgColor
+            setDeselected()
             counterNum = (currentHabit?.trackDates.count)!
             habitCounter.text = "Счетчик: \(counterNum)"
             rootVC?.updateCV1()
@@ -107,6 +127,8 @@ class HabitCollectionViewCell: UICollectionViewCell {
         checkButton.snp.makeConstraints { (make) in
             make.centerY.equalTo(contentView.snp.centerY)
             make.trailing.equalTo(contentView.snp.trailing).offset(-25)
+            make.width.equalTo(38)
+            make.height.equalTo(38)
         }
 
     }
@@ -115,8 +137,9 @@ class HabitCollectionViewCell: UICollectionViewCell {
         contentView.addSubview(frequencyLabel)
         contentView.addSubview(habitCounter)
         contentView.addSubview(checkButton)
-        contentView.layer.backgroundColor = UIColor.white.cgColor
+        contentView.layer.backgroundColor = UIColor(named: "AppWhite")?.cgColor
         contentView.layer.cornerRadius = 8
+   //     contentView.addSubview(checkedImage)
     }
     
     override init(frame: CGRect) {

@@ -10,7 +10,7 @@ class HabitsViewController: UIViewController, Coordinated {
         layout.scrollDirection = .vertical
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.register(ProgressCollectionViewCell.self, forCellWithReuseIdentifier: ProgressCollectionViewCell.identifier )
         view.register(HabitCollectionViewCell.self, forCellWithReuseIdentifier: HabitCollectionViewCell.identifier )
         view.dataSource = self
@@ -30,28 +30,41 @@ class HabitsViewController: UIViewController, Coordinated {
     override func viewWillAppear(_ animated: Bool) {
         navigationController?.navigationBar.prefersLargeTitles = true
         collectionView.reloadData()
+        navigationController?.navigationBar.prefersLargeTitles = true
     }
     override func viewDidLoad() {
         super.viewDidLoad()
         UITabBar.appearance().tintColor = UIColor(named: "AppFiolet")
-        UINavigationBar.appearance().backgroundColor = .white
+        UINavigationBar.appearance().backgroundColor = .systemBackground
+        UINavigationBar.appearance().barTintColor = .systemGray2
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addHabit))
         addButton.tintColor = UIColor(named: "AppFiolet")
         navigationItem.rightBarButtonItem = addButton
+        navigationController?.navigationBar.prefersLargeTitles = true
         self.title = "Сегодня"
-        self.view.layer.backgroundColor = UIColor.systemGray6.cgColor
-        UINavigationBar.appearance().barTintColor = UIColor(red: 0.976, green: 0.976, blue: 0.976, alpha: 0.94)
         setupViews()
         setupConstraints()
         collectionView.reloadData()
     }
     
+    func setupViews() {
+       view.addSubview(collectionView)
+       collectionView.layer.backgroundColor = UIColor(named: "Gray")?.cgColor
+   }
+   
+   func setupConstraints() {
+       collectionView.snp.makeConstraints { (make) in
+           make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+           make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+           make.leading.equalTo(view.snp.leading)
+           make.trailing.equalTo(view.snp.trailing)
+       }
+   }
+    
     @objc func addHabit() {
         coordinator.showAdd()        
     }
-//    func cancel() {
-//        self.dismiss(animated: true, completion: nil)
-//    }
+
     func reloadCollectionView() {
         collectionView.reloadData()
     }
@@ -60,10 +73,7 @@ class HabitsViewController: UIViewController, Coordinated {
         let index = IndexPath(row: 0, section: 0)
         collectionView.reloadItems(at: [index])
     }
-//    let indexpath: [IndexPath] = {
-//       let index = IndexPath(index: 0)
-//        return [index]
-//    }()
+
     func removeHabit(_ habit: Habit?) {
         guard
             store.habits.isEmpty == false,
@@ -77,19 +87,7 @@ class HabitsViewController: UIViewController, Coordinated {
             }
         }
     }
-     func setupViews() {
-        view.addSubview(collectionView)
-        collectionView.layer.backgroundColor = UIColor(named: "Gray")?.cgColor
-    }
-    
-    func setupConstraints() {
-        collectionView.snp.makeConstraints { (make) in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
-            make.leading.equalTo(view.snp.leading)
-            make.trailing.equalTo(view.snp.trailing)
-        }
-    }
+
 }
 //MARK: CollectionView Extention
 extension HabitsViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
@@ -129,6 +127,7 @@ extension HabitsViewController: UICollectionViewDelegateFlowLayout, UICollection
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        coordinator.showCurrent(index: indexPath, sourceController: self)
+        guard indexPath.row > 0 else {return}
+        coordinator.showCurrent(index: indexPath)
     }
 }

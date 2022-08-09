@@ -8,7 +8,7 @@ class EditHabitViewController: UIViewController, Coordinated {
         didSet {
             self.nameTextField.text = currentHabit!.name
             self.nameTextField.font = UIFont.boldSystemFont(ofSize: 18)
-            self.nameTextField.textColor = #colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1)
+            self.nameTextField.textColor = .systemBlue
             self.colorPicker.selectedColor = currentHabit!.color
             self.timeTextField.text = currentHabit?.dateString
         }
@@ -25,7 +25,7 @@ class EditHabitViewController: UIViewController, Coordinated {
     
     lazy var navBar: UINavigationBar = {
         let bar = UINavigationBar()
-        bar.barTintColor = .white
+        bar.barTintColor = .systemBackground
         bar.translatesAutoresizingMaskIntoConstraints = false
         return bar
     }()
@@ -41,7 +41,10 @@ class EditHabitViewController: UIViewController, Coordinated {
     lazy var nameTextField: UITextField = {
         var textfield: UITextField = UITextField()
         textfield.translatesAutoresizingMaskIntoConstraints = false
-        textfield.backgroundColor = .white
+        textfield.backgroundColor = .systemGray3
+        textfield.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: textfield.frame.height))
+        textfield.leftViewMode = .always
+        textfield.layer.cornerRadius = 5
         textfield.font = .systemFont(ofSize: 17)
         textfield.textColor = .lightGray
         textfield.addTarget(self, action: #selector(statusTextChanged), for: .editingChanged)
@@ -84,17 +87,19 @@ class EditHabitViewController: UIViewController, Coordinated {
     lazy var timeTextField: UITextField = {
         var textfield: UITextField = UITextField()
         textfield.translatesAutoresizingMaskIntoConstraints = false
-        textfield.backgroundColor = .white
+        textfield.backgroundColor = .systemGray3
+        textfield.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: textfield.frame.height))
+        textfield.leftViewMode = .always
+        textfield.layer.cornerRadius = 5
         textfield.text = "Каждый день в "
         textfield.font = .systemFont(ofSize: 17)
-        textfield.textColor = .black
         return textfield
     }()
     
     lazy var exactTimeTextField: UITextField = {
         var textfield: UITextField = UITextField()
         textfield.translatesAutoresizingMaskIntoConstraints = false
-        textfield.backgroundColor = .white
+        textfield.backgroundColor = .clear
         textfield.placeholder = "11.00 PM"
         textfield.font = .systemFont(ofSize: 17)
         textfield.textColor = UIColor(named: "AppFiolet")
@@ -145,12 +150,12 @@ class EditHabitViewController: UIViewController, Coordinated {
         navBar.setItems([barItems], animated: false)
         barItems.rightBarButtonItem = saveButton
         barItems.leftBarButtonItem = cancelButton
-        self.view.backgroundColor = .white
+        self.view.backgroundColor = .systemBackground
         colorPicker.addTarget(self, action: #selector(colorChanged), for: .valueChanged)
         datePicker.addTarget(self, action: #selector(timeChanged), for: .valueChanged)
         setupViews()
     }
-    
+    // MARK: Button Functions
     @objc func statusTextChanged(_ textField: UITextField){
         habitName = textField.text!
     }
@@ -162,7 +167,7 @@ class EditHabitViewController: UIViewController, Coordinated {
             self.habitsVC?.removeHabit(self.currentHabit)
             self.habitsVC?.reloadCollectionView()
             self.coordinator.removeDependency(self)
-            self.dismiss(animated: false)
+            self.rootVC?.navigationController?.popToRootViewController(animated: true)
         }))
         present(alert, animated: true)
         
@@ -201,6 +206,7 @@ class EditHabitViewController: UIViewController, Coordinated {
             currentHabit?.name = nameTextField.text!
             currentHabit?.color = colorPicker.selectedColor!
             currentHabit?.date = datePicker.date
+            self.rootVC?.navigationController?.popToRootViewController(animated: true)
             self.dismiss(animated: true)
         }
     }
@@ -252,7 +258,7 @@ class EditHabitViewController: UIViewController, Coordinated {
             timeTextField.topAnchor.constraint(equalTo: timeLabel.bottomAnchor,constant: 10),
             timeTextField.heightAnchor.constraint(equalToConstant: 30),
             
-            exactTimeTextField.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 142),
+            exactTimeTextField.leadingAnchor.constraint(equalTo: timeTextField.trailingAnchor, constant: -76),
             exactTimeTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor ,constant: -16),
             exactTimeTextField.topAnchor.constraint(equalTo: timeLabel.bottomAnchor,constant: 10),
             exactTimeTextField.heightAnchor.constraint(equalToConstant: 30),
